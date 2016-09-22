@@ -1,6 +1,7 @@
 package com.example.gebruiker.watchlist;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -24,18 +25,21 @@ import java.net.URL;
 public class MainActivity extends Activity {
 
     private String request;
-    private String title;
-    private String plot;
-    private String poster;
-
+    private TextView textView;
+    private String count;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        final TextView textView = (TextView)findViewById(R.id.tvJsonItem1);
+        final TextView textView2 = (TextView)findViewById(R.id.tvJsonItem2);
+
         //source: https://www.youtube.com/watch?v=Gyaay7OTy-w
         Button btnSearch = (Button) findViewById(R.id.btnHit);
+        Button btnSave = (Button) findViewById(R.id.save);
 
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -43,8 +47,20 @@ public class MainActivity extends Activity {
                 getUserInput();
                 new JSONTask().execute("http://www.omdbapi.com/?t="+request);
 
-            }}
-        );
+            }});
+
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+            SharedPreferences.Editor editor = pref.edit();
+                    @Override
+                    public void onClick(View v) {
+                    persistence();
+                        textView.setText(pref.getString("title1",null));
+                        textView2.setText(pref.getString("title2",null));
+                    }
+                });
+
+
 
     }
     public String getUserInput()
@@ -52,9 +68,21 @@ public class MainActivity extends Activity {
         EditText inputText = (EditText) findViewById((R.id.userInput));
         return request = String.valueOf(inputText.getText()).replaceAll(" ", "+");
     }
-    public void test(){
-        TextView textView = (TextView)findViewById(R.id.tvJsonItem1);
-        textView.setText(plot+"gelukt");
+    public void persistence(){
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+        SharedPreferences.Editor editor = pref.edit();
+        String title = request;
+        Integer count = 1;
+        if(pref.contains("count")) {
+            count = pref.getInt("count", 0);
+        }
+        count+=1;
+        editor.putInt("count", count); // Storing integer
+        editor.putString("title"+count, title);
+        editor.commit();
+
+
+
     }
     public class JSONTask extends AsyncTask<String, String, String> {
 
@@ -126,6 +154,7 @@ public class MainActivity extends Activity {
                 Picasso.with(getApplicationContext())
                         .load(poster)
                         .into(imageView);
+
             }
 
         }
