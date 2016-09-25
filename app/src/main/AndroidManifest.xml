@@ -20,6 +20,9 @@
         <activity android:name=".Movie"
             android:label="Movie"
             />
+        <activity android:name=".MovieList"
+            android:label="Movie list"
+            />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

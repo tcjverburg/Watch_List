@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -35,7 +36,7 @@ public class Movie extends Activity {
         plot(parts);
         poster(parts);
 
-        textview.setText(title);
+        textview.setText("Title: " + title);
         textview2.setText(plot);
 
         Picasso.with(getApplicationContext())
@@ -44,7 +45,6 @@ public class Movie extends Activity {
 
         btnSave.setOnClickListener(new View.OnClickListener() {
             SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
-            SharedPreferences.Editor editor = pref.edit();
             @Override
             public void onClick(View v) {
                 persistence(title);
@@ -53,7 +53,7 @@ public class Movie extends Activity {
 
 }
     public String title(String [] parts){
-        return  title = parts[0].replaceAll("\"", "");
+        return title = (parts[0].replaceAll("\"", "")).replace("Title:", "");
     }
     public String plot(String[] parts){
         return plot = parts[9].replaceAll("\"", "");
@@ -65,5 +65,7 @@ public class Movie extends Activity {
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
         SharedPreferences.Editor editor = pref.edit();
         editor.putString(title, title);
-        editor.commit();}
+        editor.commit();
+        Toast.makeText(Movie.this, "You have added " + title + " to your watch list.", Toast.LENGTH_SHORT).show();
+    }
 }

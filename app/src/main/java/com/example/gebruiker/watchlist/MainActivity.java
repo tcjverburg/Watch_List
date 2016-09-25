@@ -6,9 +6,14 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,35 +23,46 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-//Users should be able to search for movies, read descriptions and view poster art,
-// as well as add such titles to a list of movies to watch.
-// And of course, they should be able to remove titles from the list as well!
 public class MainActivity extends Activity {
 
     private String request;
     private ArrayList<String> list;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        EditText editText = (EditText)findViewById(R.id.userInput);
+        editText.setHint( "Search for movie to add to watch list.");
+        if (savedInstanceState != null){
+            String input = (String)savedInstanceState.getString("user input");
+            editText.setText(input);
+        }
 
-        //source: https://www.youtube.com/watch?v=Gyaay7OTy-w
         Button btnSearch = (Button) findViewById(R.id.btnHit);
-        Button btntest = (Button) findViewById(R.id.btnHit2);
-        btntest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            //debug
-            public void onClick(View v) {
-                TextView textview = (TextView) findViewById(R.id.tvJsonItem1);
-                SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
-                String [] array = reader(pref);
-                textview.setText(array[1]);
-                //1
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+        Set<String> set = new HashSet<String>(Arrays.asList(reader(pref)));
+        String[] watchlist = set.toArray(new String[set.size()]);
 
+        ListAdapter theAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,  watchlist);
+        ListView theListView = (ListView)findViewById(R.id.theListView);
+        theListView.setAdapter(theAdapter);
+
+        theListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+
+                String moviePicked = String.valueOf(adapterView.getItemAtPosition(position));
+                //Toast.makeText(MainActivity.this, moviePicked, Toast.LENGTH_SHORT).show();
+
+                Intent getNameScreen = new Intent(getApplicationContext(), MovieList.class);
+                getNameScreen.putExtra("Movie selected", moviePicked);
+                startActivity(getNameScreen);
             }
         });
 
@@ -55,28 +71,29 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 getUserInput();
 
-
-
                 new JSONTask().execute("http://www.omdbapi.com/?t="+request);
 
-
-
             }});
-
-
-
-
     }
 
+    public void onRestart()
+    {
+        super.onRestart();
+        finish();
+        startActivity(getIntent());
+    }
+
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        String userInput = getUserInput();
+        outState.putSerializable("user input", userInput);
+    }
 
     public String getUserInput()
     {
         EditText inputText = (EditText) findViewById((R.id.userInput));
         return request = String.valueOf(inputText.getText()).replaceAll(" ", "+");
     }
-
-
-
 
 public String[] reader(SharedPreferences pref){
         ArrayList<String> list = new ArrayList<String>();
@@ -89,7 +106,7 @@ public String[] reader(SharedPreferences pref){
                 return arr;
             }
 
-
+    //source: https://www.youtube.com/watch?v=Gyaay7OTy-w
     public class JSONTask extends AsyncTask<String, String, String> {
 
         @Override
@@ -141,21 +158,14 @@ public String[] reader(SharedPreferences pref){
             super.onPostExecute(result);
 
             TextView textview = (TextView) findViewById(R.id.tvJsonItem1);
-            SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
-            String [] array = reader(pref);
 
             String movie = result.substring(1,result.length()-1);
             if (movie.startsWith("\"Response\":\"False\",\"Error\"")){
-                //debug
-                textview.setText(array[0]);
-
-
-
+                Toast.makeText(MainActivity.this, "Error: Not a valid movie title!", Toast.LENGTH_SHORT).show();
             }
             else {
                 String[] parts = movie.split("\",\"");
                 Intent getNameScreen = new Intent(getApplicationContext(), Movie.class);
-                //passes extra data story_end
                 getNameScreen.putExtra("info", parts);
                 startActivity(getNameScreen);
 
