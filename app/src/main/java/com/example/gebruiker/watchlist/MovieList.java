@@ -39,11 +39,14 @@ public class MovieList extends Activity {
 
         Button btnRemove = (Button) findViewById(R.id.remove);
 
+        //gets intent from MainActivity
         Intent activityThatCalled = getIntent();
         String SelectedMovie = activityThatCalled.getExtras().getString("Movie selected").replace("Title:","");
 
+        //request data again for poster url and plot
         new JSONTask2().execute("http://www.omdbapi.com/?t="+SelectedMovie.replaceAll(" ","+"));
 
+        //on click method for the removal of a specific movie from the list
         btnRemove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {persistence(title);
@@ -52,6 +55,7 @@ public class MovieList extends Activity {
 
     }
 
+        //same as JSONTask in Mainactivity
     public class JSONTask2 extends AsyncTask<String, String, String> {
 
         @Override
@@ -97,7 +101,7 @@ public class MovieList extends Activity {
             return null;
         }
 
-
+        //gets proper information from the result and sets them to matching textview/imageview
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             String movie = result.substring(1, result.length() - 1);
@@ -116,19 +120,21 @@ public class MovieList extends Activity {
                     .into(imageView);
         }
     }
-
+        //defines title
         public String title(String [] parts){
             return title = (parts[0].replaceAll("\"", "")).replace("Title:", "");
         }
-
+        //defines plot
         public String plot(String[] parts){
             return plot = parts[9].replaceAll("\"", "");
         }
 
+        //defines poster
         public String poster(String[] parts){
             return poster = parts[13].replaceAll("\"", "").substring(7);
         }
 
+        //on the click of the button, movie removed from watchlist and gives user feedback.
         public void persistence(String title){
             SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
             SharedPreferences.Editor editor = pref.edit();

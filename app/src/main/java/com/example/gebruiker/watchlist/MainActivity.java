@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -45,20 +44,23 @@ public class MainActivity extends Activity {
         }
 
         Button btnSearch = (Button) findViewById(R.id.btnHit);
+
+        //get shared preferences, remove doubles and returning it as an String[]
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
         Set<String> set = new HashSet<String>(Arrays.asList(reader(pref)));
         String[] watchlist = set.toArray(new String[set.size()]);
 
+        //Setting up the listview and adapter for the movies from shared preferences
         ListAdapter theAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,  watchlist);
         ListView theListView = (ListView)findViewById(R.id.theListView);
         theListView.setAdapter(theAdapter);
 
+        //The on click method that uses an intent to see more info about a particular movie
         theListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
                 String moviePicked = String.valueOf(adapterView.getItemAtPosition(position));
-                //Toast.makeText(MainActivity.this, moviePicked, Toast.LENGTH_SHORT).show();
 
                 Intent getNameScreen = new Intent(getApplicationContext(), MovieList.class);
                 getNameScreen.putExtra("Movie selected", moviePicked);
@@ -66,6 +68,7 @@ public class MainActivity extends Activity {
             }
         });
 
+        //on click method to search for movies and information about them using the omdapi api and the user input
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,6 +79,7 @@ public class MainActivity extends Activity {
             }});
     }
 
+    //reloads page so that the watch list is up to date after saving/removing movies
     public void onRestart()
     {
         super.onRestart();
@@ -83,18 +87,21 @@ public class MainActivity extends Activity {
         startActivity(getIntent());
     }
 
+    //saves user input when rotating screen
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         String userInput = getUserInput();
         outState.putSerializable("user input", userInput);
     }
 
+    //gets user input from edittext
     public String getUserInput()
     {
         EditText inputText = (EditText) findViewById((R.id.userInput));
         return request = String.valueOf(inputText.getText()).replaceAll(" ", "+");
     }
 
+    //gets all the shared preferences and returns array(with doubles, in case the user accidentally added movie twice)
 public String[] reader(SharedPreferences pref){
         ArrayList<String> list = new ArrayList<String>();
          Map<String, ?> allEntries = pref.getAll();
@@ -107,6 +114,7 @@ public String[] reader(SharedPreferences pref){
             }
 
     //source: https://www.youtube.com/watch?v=Gyaay7OTy-w
+    //connecting tot the api and returning string with all the information about the particular movie or an error
     public class JSONTask extends AsyncTask<String, String, String> {
 
         @Override
@@ -114,6 +122,7 @@ public String[] reader(SharedPreferences pref){
             HttpURLConnection connection = null;
             BufferedReader reader = null;
 
+            //tries to make connection if possible
             try {
                 URL url = new URL(params[0]);
                 connection = (HttpURLConnection) url.openConnection();
@@ -127,6 +136,7 @@ public String[] reader(SharedPreferences pref){
 
                 String line = "";
 
+                //adds line by line to the buffer from the api
                 while ((line = reader.readLine()) != null) {
                     buffer.append(line);
                 }
@@ -152,13 +162,12 @@ public String[] reader(SharedPreferences pref){
             return null;
         }
 
-
+        //filters the string we got as a result of the method getting the information from the api
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            TextView textview = (TextView) findViewById(R.id.tvJsonItem1);
-
+            //splitting the result in different strings and returning error if the user input was not valid
             String movie = result.substring(1,result.length()-1);
             if (movie.startsWith("\"Response\":\"False\",\"Error\"")){
                 Toast.makeText(MainActivity.this, "Error: Not a valid movie title!", Toast.LENGTH_SHORT).show();
