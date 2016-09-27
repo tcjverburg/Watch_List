@@ -25,7 +25,17 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * Created by Gebruiker on 23-9-2016.
+ * MovieList.java
+ * Watch List
+ *
+ * Created by Tom Verburg on 23-9-2016.
+ *
+ * This class gets the name from the listview in MainActivity.java and
+ * requests the movie information a second time from the same api. By doing this
+ * the movie information is being presented again (title, plot and poster).
+ * There also is a button which makes it possible for the user to remove the particular
+ * movie from the watchlist. 
+ *
  */
 public class MovieList extends Activity {
     private String title;

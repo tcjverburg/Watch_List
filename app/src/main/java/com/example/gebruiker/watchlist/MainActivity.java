@@ -26,7 +26,21 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
+/**
+ * MainActivity.java
+ * Watch List
+ *
+ * Created by Tom Verburg on 23-9-2016.
+ *
+ * This class is the starting main screen of the application. Here the watchlist
+ * is shown with a search bar to search for new movies to add to the list.
+ * The searching is done by requesting information from omdbapi (an api of imdb)
+ * based on the user input in the edit text field. The calling of the watchlist
+ * is done by getting information from the shared preferences that have been saved
+ * in the Movie.java activity.
+ *
+ *
+ */
 public class MainActivity extends Activity {
 
     private String request;
@@ -180,7 +194,6 @@ public String[] reader(SharedPreferences pref){
 
 
             }
-
         }
     }
 

@@ -13,7 +13,17 @@ import android.widget.Toast;
 import com.squareup.picasso.Picasso;
 
 /**
- * Created by Gebruiker on 23-9-2016.
+ * Movie.java
+ * Watch List
+ *
+ * Created by Tom Verburg on 23-9-2016.
+ *
+ * This class is the screen that is shown after the user presses
+ * the search button and entered a valid movie name (one that doesnt
+ * return an error after being requested from the api). Here the movie
+ * title, plot and poster are shown, with a button to add the particular movie
+ * to your watch list by using shared preferences.
+ *
  */
 public class Movie extends Activity {
     private String title;
