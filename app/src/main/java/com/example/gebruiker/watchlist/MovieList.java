@@ -34,7 +34,7 @@ import java.net.URL;
  * requests the movie information a second time from the same api. By doing this
  * the movie information is being presented again (title, plot and poster).
  * There also is a button which makes it possible for the user to remove the particular
- * movie from the watchlist. 
+ * movie from the watchlist.
  *
  */
 public class MovieList extends Activity {
